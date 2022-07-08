@@ -11,7 +11,7 @@ const permissions = {
     read: [AppleHealthKit.Constants.Permissions.HeartRate],
     write: [AppleHealthKit.Constants.Permissions.Steps],
   },
-} 
+}
 
 AppleHealthKit.initHealthKit(permissions, error => {
   /* Called after we receive a response from the system */
@@ -32,8 +32,9 @@ AppleHealthKit.initHealthKit(permissions, error => {
     if (err) {
       return;
     }
-    console.log(results).
-  });
+    console.log(results)
+  }
+  );
 })
 
 export default function App() {
