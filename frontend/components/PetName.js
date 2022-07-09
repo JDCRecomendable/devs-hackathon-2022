@@ -3,12 +3,12 @@ import petNameHolder from '../assets/PetNameHolder.png';
 
 const PET_NAME_HOLDER = Image.resolveAssetSource(petNameHolder).uri;
 
-export default function PetName() {
+export default function PetName({ petName }) {
     return (
         <View style={styles.petNameContainer}>
             <ImageBackground style={{ width: "100%", height: 50, justifyContent: "center", alignItems: "center" }} source={{ uri: PET_NAME_HOLDER }} >
                 <Text style={styles.text}>
-                    Bob
+                    {petName}
                 </Text>
             </ImageBackground>
         </View>

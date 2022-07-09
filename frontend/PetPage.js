@@ -6,12 +6,19 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import HappyCat from './assets/happy_cat_no_bg.gif';
 import SadCat from './assets/sad_cat_no_bg.gif';
 import NeutralCat from './assets/neutral_cat_no_bg.gif';
+import leaveImage from './assets/leaveImage.png';
+import shopIcon from './assets/shop_icon.png';
 import axios from "axios";
 import PetName from './components/PetName';
+import AwesomeAlert from 'react-native-awesome-alerts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const HAPPY_CAT = Image.resolveAssetSource(HappyCat).uri;
 const SAD_CAT = Image.resolveAssetSource(SadCat).uri;
 const NEUTRAL_CAT = Image.resolveAssetSource(NeutralCat).uri;
+const LEAVE_IMAGE = Image.resolveAssetSource(leaveImage).uri;
+const SHOP_ICON = Image.resolveAssetSource(shopIcon).uri;
 
 
 const Progress = ({ step, steps, height, text, color, iconName }) => {
@@ -93,8 +100,22 @@ const CatState = {
 const PetPage = ({ navigation }) => {
     const [hunger, setHunger] = useState(100);
     const [happiness, setHappiness] = useState(100);
-
     const [catImg, setCatImg] = useState(CatState.happy);
+    const [catLeaveAlert, setCatLeaveAlert] = useState(false)
+    const [name, setName] = useState("")
+
+    useEffect(() => {
+        const getName = async () => {
+            const petName = await AsyncStorage.getItem("petName")
+            setName(petName)
+        }
+        getName();
+    }, [])
+
+    const resetGame = () => {
+        setCatLeaveAlert(false);
+        navigation.navigate('GetStarted')
+    }
 
     const fetchHappiness = async () => {
         try {
@@ -120,9 +141,12 @@ const PetPage = ({ navigation }) => {
 
     useEffect(() => {
         const interval = setInterval(() => {
+            if (happiness == 0) {
+                setCatLeaveAlert(true);
+            }
             fetchHappiness();
             fetchHunger();
-        }, 5000);
+        }, 1000);
 
         return () => {
             clearInterval(interval);
@@ -157,9 +181,28 @@ const PetPage = ({ navigation }) => {
                 </View>
                 <View style={styles.center}>
                     <Image style={{ width: 300, height: 350 }} source={{ uri: catImg }} />
-                    <PetName />
+                    <PetName petName={name} />
                 </View>
+                <Image style={{ width: 129, height: 74, position: "absolute", left: 20, bottom: 50 }} source={{ uri: SHOP_ICON }} />
             </ImageBackground>
+
+            <AwesomeAlert
+                show={happiness === 0}
+                showProgress={false}
+                title="Oh No!"
+                message="Bob has left you for the wild... Try get a healthier sleep schedule!"
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showConfirmButton={true}
+                confirmText="Contiue"
+                confirmButtonColor="#DD6B55"
+                onConfirmPressed={() => {
+                    resetGame();
+                }}
+                customView={
+                    <Image style={{ width: 200, height: 200, marginTop: 20 }} source={{ uri: LEAVE_IMAGE }} />
+                }
+            />
         </View>
     );
 }

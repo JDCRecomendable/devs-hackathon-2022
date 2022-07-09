@@ -20,7 +20,10 @@ export default function App() {
         <Stack.Navigator screenOptions={{
           headerShown: false
         }}>
-          {/* <PetPage/> */}
+          <Stack.Screen
+            name="LandingPage"
+            component={LandingPage}
+          />
           <Stack.Screen
             name="GetStarted"
             component={GetStarted}
@@ -29,9 +32,6 @@ export default function App() {
             name="PetPage"
             component={PetPage}
           />
-          {/* <GetStarted /> */}
-          {/* <LoginPage /> */}
-          {/* <LandingPage /> */}
         </Stack.Navigator>
       </View>
     </NavigationContainer >
