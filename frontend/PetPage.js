@@ -1,8 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, StyleSheet, Text, View, ImageBackground } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const Progress = ({ step, steps, height, text, color }) => {
+
+const Progress = ({ step, steps, height, text, color, iconName }) => {
     const [width, setWidth] = useState(0);
     const animatedValue = useRef(new Animated.Value(-1000)).current;
     const reactivate = useRef(new Animated.Value(-1000)).current;
@@ -21,14 +24,21 @@ const Progress = ({ step, steps, height, text, color }) => {
 
     return (
         <View style={{ width: "50%", padding: 30 }}>
-            <Text style={{
-                fontSize: 12,
-                fontWeight: '900',
-                marginBottom: 4
-            }}>
-                {/* {step / steps} */}
-                {text}
-            </Text>
+            <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginBottom: 16 }}>
+                {iconName == "happy" ? <Ionicons name="happy" size={32} color={color} />
+                    :
+                    <MaterialCommunityIcons name="food-drumstick" size={32} color={color} />
+                }
+                <Text style={{
+                    fontSize: 18,
+                    fontWeight: '900',
+                    color: "white",
+                    paddingHorizontal: 8
+                }}>
+                    {/* {step / steps} */}
+                    {text}
+                </Text>
+            </View>
             <View onLayout={(e) => {
                 const newWidth = e.nativeEvent.layout.width;
 
@@ -36,9 +46,13 @@ const Progress = ({ step, steps, height, text, color }) => {
             }}
                 style={{
                     height,
-                    backgroundColor: 'rgba(0,0,0,0.1)',
+                    // backgroundColor: 'rgba(0,0,0,0.1)',
+                    backgroundColor: 'white',
                     borderRadius: height,
                     overflow: 'hidden',
+                    outlineColor: "#11A6DA",
+                    outlineStyle: "solid",
+                    outlineWidth: 5,
                 }}>
                 <Animated.View style={{
                     height,
@@ -74,14 +88,16 @@ const PetPage = () => {
 
     return (
         <View style={styles.container}>
-            <StatusBar style={styles.center} />
-            <View style={styles.statusContainer}>
-                <Progress step={index} steps={10} height={30} text="Hunger" color="#F58507" />
-                <Progress step={index} steps={10} height={30} text="Happiness" color="#07F51F" />
-            </View>
-            <View style={styles.center}>
-                <Image style={{ width: 300, height: 350 }} source={require('./assets/happy_cat_no_bg.gif')} />
-            </View>
+            <ImageBackground source={require('./assets/BG.png')} resizeMode="cover" style={styles.container}>
+                <StatusBar style={styles.center} />
+                <View style={styles.statusContainer}>
+                    <Progress step={index} steps={10} height={30} text="Hunger" color="#F58507" iconName="" />
+                    <Progress step={index} steps={10} height={30} text="Happiness" color="#07F51F" iconName="happy" />
+                </View>
+                <View style={styles.center}>
+                    <Image style={{ width: 300, height: 350 }} source={require('./assets/happy_cat_no_bg.gif')} />
+                </View>
+            </ImageBackground>
         </View>
     );
 }
