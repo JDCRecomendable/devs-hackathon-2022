@@ -4,12 +4,29 @@ import { useEffect, useState } from 'react';
 
 const Shop = ({id}) => {
     const[xp, setXp] = useState();
+    const[boughtFood, setBoughtFood] = useState(false);
 
     useEffect(() => {
         axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/xp").then((response) => {
             setXp(response.data.xp);
           });
-    },[])
+    },[boughtFood])
+
+    const onClickFood = (value) => {
+
+            fetch("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/get-food",
+            {
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                method: "POST",
+                body: JSON.stringify({value: value})
+            })
+            .then(()=>{
+                setBoughtFood(true);
+            })
+        }
     
     return (
         <View style={styles.shopCenter}>
@@ -20,17 +37,17 @@ const Shop = ({id}) => {
                         alignItems: 'flex-start',
                         justifyContent:'center',
                         flexDirection: 'row', width: 450, marginTop:20, height:450}} resizeMode="cover" source={require("./../assets/wood3.png")}>
-                            <TouchableOpacity style={styles.item}>
+                            <TouchableOpacity onPress={()=>onClickFood(500)} style={styles.item}>
                                 <Image style={styles.foodImg} source={require("./../assets/stake.png")}></Image>
-                                <Text style={styles.xp}>5 xp</Text>
+                                <Text style={styles.xp}>500 xp</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.item}>
+                            <TouchableOpacity onPress={()=>onClickFood(1000)} style={styles.item}>
                                 <Image style={styles.foodImg} source={require("./../assets/egg.png")}></Image>
-                                <Text style={styles.xp}>10 xp</Text>
+                                <Text style={styles.xp}>1000 xp</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.item}>
+                            <TouchableOpacity onPress={()=>onClickFood(2000)} style={styles.item}>
                                 <Image style={styles.foodImg2} source={require("./../assets/rice.png")}></Image>
-                                <Text style={styles.xp}>25 xp</Text>
+                                <Text style={styles.xp}>2000 xp</Text>
                             </TouchableOpacity>
                             <TouchableOpacity style={styles.item}>
                             </TouchableOpacity>

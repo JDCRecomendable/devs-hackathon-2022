@@ -12,11 +12,22 @@ export default function Goal ({}) {
     const [wakeUpTime, setWakeUpTime] = useState("12:00");
     const [totalHour,setTotalHour] = useState();
     const [total, setTotal] = useState(0);
-    const [wakeDates,setWakeDate] = useState();
-    const [bedDates,setBedDate] = useState();
+    const [wakeDates,setWakeDate] = useState(new Date());
+    const [bedDates,setBedDate] = useState(new Date());
 
     const onSetGoal = () => {
-
+        fetch("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/set-user-preferences",
+            {
+                headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+                },
+                method: "POST",
+                body: JSON.stringify({wakeTime:wakeDates.toLocaleString(),sleepTime:bedDates.toLocaleString()})
+            })
+            .then(()=>{
+                
+            })
     }
 
 
@@ -88,7 +99,8 @@ export default function Goal ({}) {
 
         <TouchableOpacity
                                 style={{marginTop:60, backgroundColor:'#F58507', paddingLeft:40,paddingRight:40,paddingTop:20,paddingBottom:20,borderRadius:30}}
-                                underlayColor='#F58507'>
+                                underlayColor='#F58507'
+                                onPress={onSetGoal}>
                                     <Text style={{color:"white",fontSize:25}}>Set Goal</Text>
                                 </TouchableOpacity>
         </View>
