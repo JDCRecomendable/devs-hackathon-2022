@@ -77,9 +77,9 @@ export default function App() {
     <View style={styles.container}>
       {/* <Text>Wow this s awd</Text> */}
       <StatusBar style={styles.center} />
-      <View style={styles.flexRow}>
-        <Progress step={index} steps={10} height={20} text="Hunger" color="#F58507" />
-        <Progress step={index} steps={10} height={20} text="Happiness" color="#07F51F" />
+      <View style={styles.statusContainer}>
+        <Progress step={index} steps={10} height={30} text="Hunger" color="#F58507" />
+        <Progress step={index} steps={10} height={30} text="Happiness" color="#07F51F" />
       </View>
       {/* <ImageBackground source={require('./assets/BG.png')} resizeMode="cover" style={styles.image}> */}
       <View style={styles.center}>
@@ -94,7 +94,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  flexRow: {
+  statusContainer: {
+    position: "absolute",
+    width: "100%",
+    paddingTop: 60,
     flexDirection: "row",
     justifyContent: "center",
   },
