@@ -53,12 +53,12 @@ export default function Goal ({}) {
 
     return(
         <View style={styles.goalWrapper}>
-            <Text style={{fontSize:35,fontWeight:700, marginTop:20}}>Sleep Time</Text>
+            <Text style={{fontSize:35,fontWeight:"700", marginTop:60}}>Sleep Time</Text>
 
             <View style={styles.timeRow}>
                 <View style={styles.timeWrapper}>
                     <TextInput
-                    label={"hh:mm"}
+                    label="hh:mm"
                     style={styles.time}
                     onChangeText={setBedTime}
                     value={bedTime}
@@ -70,7 +70,7 @@ export default function Goal ({}) {
                     <Text style={styles.timeLabel}>Bedime goal</Text>
                 </View>
                 <View style={styles.timeWrapper}><TextInput
-                label={"hh:mm"}
+                label="hh:mm"
                     style={styles.time}
                     onChangeText={setWakeUpTime}
                     value={wakeUpTime}
@@ -87,14 +87,13 @@ export default function Goal ({}) {
                 rotation={0}
                 fill={total/0.12}
                 tintColor="#F58507"
-                onAnimationComplete={() => console.log('onAnimationComplete')}
                 backgroundColor="#3d5875" 
                 style={{marginTop:60}}/>
 
-        <Text style={{fontSize:35,fontWeight:700, marginTop:60}}>Total time: {totalHour}</Text>
+        <Text style={{fontSize:35,fontWeight:"700", marginTop:60}}>Total time: {totalHour}</Text>
 
         <TouchableOpacity
-                                style={{marginTop:60, backgroundColor:'#F58507', paddingLeft:"40px",paddingRight:40,paddingTop:20,paddingBottom:20,borderRadius:30}}
+                                style={{marginTop:60, backgroundColor:'#F58507', paddingLeft:40,paddingRight:40,paddingTop:20,paddingBottom:20,borderRadius:30}}
                                 underlayColor='#F58507'>
                                     <Text style={{color:"white",fontSize:25}}>Set Goal</Text>
                                 </TouchableOpacity>
@@ -123,7 +122,7 @@ const styles = StyleSheet.create({
         // backgroundColor:"transparent",
     },
     timeLabel: {
-        fontWeight:200,
+        fontWeight:"200",
     },
     timeRow: {
     

@@ -17,7 +17,7 @@ export default function App() {
       {/* <PetPage/> */}
       {/* <LoginPage /> */}
       {/* <Shop /> */}
-      {/* <Goal></Goal> */}
+      <Goal></Goal>
       
     </View>
   );
