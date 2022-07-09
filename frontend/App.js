@@ -13,11 +13,11 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      {/* <StatusBar style={styles.center} />
-      <PetPage/> */}
+      {/* <StatusBar style={styles.center} /> */}
+      {/* <PetPage/> */}
       {/* <LoginPage /> */}
       {/* <Shop /> */}
-      <Goal></Goal>
+      {/* <Goal></Goal> */}
       
     </View>
   );

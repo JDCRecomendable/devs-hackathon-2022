@@ -19,12 +19,12 @@ export default function Goal ({}) {
 
     }
 
-    useEffect(() => {
-        axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/1/xp").then((response) => {
-            setXp(response.data);
-            console.log(response.data)
-          });
-    },[])
+    // useEffect(() => {
+    //     axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/xp").then((response) => {
+    //         setXp(response.data);
+    //         console.log(response.data)
+    //       });
+    // },[])
 
     useEffect(() => {
 
