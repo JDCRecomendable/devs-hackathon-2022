@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 
 import { StyleSheet, Text, View } from 'react-native';
 import LoginPage from './LoginPage';
+import SleepTime from './components/sleepTime';
 
 export default function App() {
   return (
@@ -9,6 +10,7 @@ export default function App() {
       <Text>Open up App.js to </Text>
       <StatusBar style="auto" />
       <LoginPage />
+      <SleepTime />
     </View>
   );
 }

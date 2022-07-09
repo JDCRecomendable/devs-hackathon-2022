@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { IconName } from "react-icons/fa";
 
 class LoginPage extends Component {
     constructor(props) {
@@ -22,9 +21,9 @@ class LoginPage extends Component {
     render() {
         return (
             <div className='App'>
+                <h1 className='text-lg text-red-400'>Hello world</h1>
                 <form onSubmit={this.handleSubmit}>
                     <label>
-                        <FontAwesomeIcon icon="fa-thin fa-envelope" />
                         <input type="text" value={this.state.value} onChange={this.handleChange} />
                     </label>
 
