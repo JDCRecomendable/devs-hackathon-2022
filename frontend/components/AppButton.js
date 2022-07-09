@@ -12,12 +12,15 @@ export default function AppButton(props) {
 
 const styles = StyleSheet.create({
     button: {
+        alignContent: "center",
+        textAlign: "center",
         backgroundColor: "#F58507",
-        paddingVertical: 20,
+        paddingVertical: 16,
         paddingHorizontal: 50,
         borderRadius: 50
     },
     buttonText: {
+        textAlign: "center",
         color: "white",
         fontSize: 18,
         fontWeight: 'bold'

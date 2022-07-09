@@ -12,6 +12,7 @@ import axios from "axios";
 import PetName from './components/PetName';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppButton from './components/AppButton';
 
 
 const HAPPY_CAT = Image.resolveAssetSource(HappyCat).uri;
@@ -100,6 +101,7 @@ const CatState = {
 const PetPage = ({ navigation }) => {
     const [hunger, setHunger] = useState(100);
     const [happiness, setHappiness] = useState(100);
+    const [xp, setXp] = useState(0);
     const [catImg, setCatImg] = useState(CatState.happy);
     const [catLeaveAlert, setCatLeaveAlert] = useState(false)
     const [name, setName] = useState("")
@@ -139,6 +141,17 @@ const PetPage = ({ navigation }) => {
         }
     }
 
+    const fetchXP = async () => {
+        try {
+            const xpRes = await axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/xp")
+            const xpData = xpRes.data.xp;
+            console.log("xp: " + xpData)
+            setXp(xpData)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     useEffect(() => {
         const interval = setInterval(() => {
             if (happiness == 0) {
@@ -146,11 +159,18 @@ const PetPage = ({ navigation }) => {
             }
             fetchHappiness();
             fetchHunger();
+            fetchXP();
         }, 1000);
 
         return () => {
             clearInterval(interval);
         }
+    }, [])
+
+    useEffect(() => {
+        fetchHappiness();
+        fetchHunger();
+        fetchXP();
     }, [])
 
     useEffect(() => {
@@ -184,6 +204,9 @@ const PetPage = ({ navigation }) => {
                     <PetName petName={name} />
                 </View>
                 <Image style={{ width: 129, height: 74, position: "absolute", left: 20, bottom: 50 }} source={{ uri: SHOP_ICON }} />
+                <View style={styles.xpHolder}>
+                    <Text style={{ textAlign: "center", color: "white", fontWeight: "bold", fontSize: 24 }}>XP: {xp}</Text>
+                </View>
             </ImageBackground>
 
             <AwesomeAlert
@@ -225,6 +248,17 @@ const styles = StyleSheet.create({
     },
     center: {
         flex: 1,
+        justifyContent: "center",
+        alignItems: "center"
+    },
+    xpHolder: {
+        height: 50,
+        width: 160,
+        borderRadius: 20,
+        position: "absolute",
+        right: 10,
+        bottom: 50,
+        backgroundColor: "#F58507",
         justifyContent: "center",
         alignItems: "center"
     }
