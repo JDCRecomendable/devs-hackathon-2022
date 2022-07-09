@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Image, ImageBackground, Animated } from 'react-native';
 import LoginPage from "./LoginPage";
+import LandingPage from './LandingPage';
 import PetPage from './PetPage';
 import GetStarted from './GetStarted';
 import { NavigationContainer } from '@react-navigation/native';
@@ -30,6 +31,7 @@ export default function App() {
           />
           {/* <GetStarted /> */}
           {/* <LoginPage /> */}
+          {/* <LandingPage /> */}
         </Stack.Navigator>
       </View>
     </NavigationContainer >
