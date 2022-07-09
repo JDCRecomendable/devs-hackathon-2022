@@ -54,8 +54,7 @@ def hunger(id='a'):
         if json_dict['requestType'] == 'append':
             new_record += record[0]
         new_record += json_dict['hunger']
-        if new_record > 100:
-            new_record = 100
+        new_record = max(0, min(100, new_record))
         cur.execute('UPDATE userdata SET {}={} WHERE userid="{}"'.format('hunger', new_record, id))
         con.commit()
         return {'status': "Done"}, 200
