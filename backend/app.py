@@ -227,7 +227,7 @@ def remove_sleep(user_id='a'):
 
 @app.route('/api/v0/user/<user_id>/get-food/', methods=['POST'])
 @app.route('/api/v0/user/<user_id>/get-food', methods=['POST'])
-def get_food(user_id):
+def get_food(user_id='a'):
     con = sqlite3.connect('store.db')
     cur = con.cursor()
     if user_id_is_invalid(cur, user_id):
@@ -271,12 +271,65 @@ def get_food(user_id):
     return craft_response({'status': 'Done'}, 200)
 
 
-@app.route('/api/v0/register-user/', methods=['POST'])
-@app.route('/api/v0/register-user', methods=['POST'])
+@app.route('/api/v0/reset-user/', methods=['POST'])
+@app.route('/api/v0/reset-user', methods=['POST'])
 def register_user():
     con = sqlite3.connect('store.db')
     cur = con.cursor()
-    return ''
+
+    json_dict = request.get_json()
+    expected_values = ['ID']
+    for expected_value in expected_values:
+        if expected_value not in json_dict:
+            return craft_response({'status': 'Error', 'error': 'Missing parameter: `{}`.'.format(expected_value)}, 400)
+
+    cur.execute('DELETE FROM userdata WHERE userid="{}"'.format(json_dict['ID']))
+    cur.execute(
+        'INSERT INTO userdata VALUES (\'{}\', \'{}\', \'{}\', \'{}\');'.format(
+            json_dict['ID'],
+            5000,
+            100,
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        ))
+    con.commit()
+    return craft_response({'status': "Done"}, 200)
+
+
+@app.route('/api/v0/user/<user_id>/set-user-preferences/', methods=['POST'])
+@app.route('/api/v0/user/<user_id>/set-user-preferences', methods=['POST'])
+def set_user_preferences(user_id='a'):
+    con = sqlite3.connect('store.db')
+    cur = con.cursor()
+    if user_id_is_invalid(cur, user_id):
+        return craft_response({'status': 'Error', 'error': 'User ID does not exist'}, 400)
+
+    json_dict = request.get_json()
+    expected_values = ['startHour', 'startMinute', 'endHour', 'endMinute', 'gracePeriod']
+    for expected_value in expected_values:
+        if expected_value not in json_dict:
+            return craft_response({'status': 'Error', 'error': 'Missing parameter: `{}`.'.format(expected_value)}, 400)
+
+    start_minute_string = str(json_dict['startMinute'])
+    end_minute_string = str(json_dict['endMinute'])
+
+    if len(start_minute_string) == 1:
+        start_minute_string = '0' + start_minute_string
+
+    if len(end_minute_string) == 1:
+        end_minute_string = '0' + end_minute_string
+
+
+    cur.execute('DELETE FROM userpreferences WHERE userid="{}"'.format(user_id))
+    cur.execute(
+        'INSERT INTO userpreferences VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\');'.format(
+            user_id,
+            int(str(json_dict['startHour']) + start_minute_string),
+            int(str(json_dict['endHour']) + end_minute_string),
+            json_dict['gracePeriod'],
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        ))
+    con.commit()
+    return craft_response({'status': "Done"}, 200)
 
 
 if __name__ == '__main__':
