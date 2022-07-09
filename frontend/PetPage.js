@@ -1,8 +1,20 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, StyleSheet, Text, View, ImageBackground } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import HappyCat from './assets/happy_cat_no_bg.gif';
+import SadCat from './assets/sad_cat_no_bg.gif';
+import NeutralCat from './assets/neutral_cat_no_bg.gif';
+import axios from "axios";
 
-const Progress = ({ step, steps, height, text, color }) => {
+
+const HAPPY_CAT = Image.resolveAssetSource(HappyCat).uri;
+const SAD_CAT = Image.resolveAssetSource(SadCat).uri;
+const NEUTRAL_CAT = Image.resolveAssetSource(NeutralCat).uri;
+
+
+const Progress = ({ step, steps, height, text, color, iconName }) => {
     const [width, setWidth] = useState(0);
     const animatedValue = useRef(new Animated.Value(-1000)).current;
     const reactivate = useRef(new Animated.Value(-1000)).current;
@@ -21,14 +33,21 @@ const Progress = ({ step, steps, height, text, color }) => {
 
     return (
         <View style={{ width: "50%", padding: 30 }}>
-            <Text style={{
-                fontSize: 12,
-                fontWeight: '900',
-                marginBottom: 4
-            }}>
-                {/* {step / steps} */}
-                {text}
-            </Text>
+            <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginBottom: 16 }}>
+                {iconName == "happy" ? <MaterialCommunityIcons name="emoticon-happy" size={32} color={color} />
+                    :
+                    <MaterialCommunityIcons name="food-drumstick" size={32} color={color} />
+                }
+                <Text style={{
+                    fontSize: 18,
+                    fontWeight: '900',
+                    color: "white",
+                    paddingHorizontal: 8
+                }}>
+                    {/* {step / steps} */}
+                    {text}
+                </Text>
+            </View>
             <View onLayout={(e) => {
                 const newWidth = e.nativeEvent.layout.width;
 
@@ -36,7 +55,8 @@ const Progress = ({ step, steps, height, text, color }) => {
             }}
                 style={{
                     height,
-                    backgroundColor: 'rgba(0,0,0,0.1)',
+                    // backgroundColor: 'rgba(0,0,0,0.1)',
+                    backgroundColor: 'white',
                     borderRadius: height,
                     overflow: 'hidden',
                 }}>
@@ -59,29 +79,84 @@ const Progress = ({ step, steps, height, text, color }) => {
     )
 }
 
+const CatState = {
+    neutral: NEUTRAL_CAT,
+    sad: SAD_CAT,
+    happy: HAPPY_CAT
+}
+
+
+
 const PetPage = () => {
     const [index, setIndex] = useState(0)
+    const [hunger, setHunger] = useState(100);
+    const [happiness, setHappiness] = useState(100);
+
+    const [catImg, setCatImg] = useState(CatState.happy);
+
+    const fetchHappiness = async () => {
+        try {
+            const happinessRes = await axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/happiness")
+            const happiness = happinessRes.data.happiness;
+            console.log("Happiness: " + happiness)
+            setHappiness(100)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const fetchHunger = async () => {
+        try {
+            const hungerRes = await axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/hunger")
+            const hunger = hungerRes.data.hunger;
+            console.log("Hunger: " + hunger)
+            setHunger(hunger)
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setIndex((index + 1) % (10 + 1));
-        }, 500);
+            fetchHappiness();
+            fetchHunger();
+        }, 5000);
 
         return () => {
             clearInterval(interval);
         }
     }, [index])
 
+    useEffect(() => {
+        if (happiness < 33) {
+            setCatImg(CatState.sad);
+        } else if (happiness >= 33 && happiness < 66) {
+            setCatImg(CatState.neutral)
+        } else {
+            setCatImg(CatState.happy);
+        }
+    }, [happiness])
+
     return (
         <View style={styles.container}>
-            <StatusBar style={styles.center} />
-            <View style={styles.statusContainer}>
-                <Progress step={index} steps={10} height={30} text="Hunger" color="#F58507" />
-                <Progress step={index} steps={10} height={30} text="Happiness" color="#07F51F" />
+            <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 50 }}>
+                <Text>
+                    {"Hunger " + hunger}
+                </Text>
+                <Text>
+                    {"Happiness " + happiness}
+                </Text>
             </View>
-            <View style={styles.center}>
-                <Image style={{ width: 300, height: 350 }} source={require('./assets/happy_cat_no_bg.gif')} />
-            </View>
+            <ImageBackground source={require('./assets/BG.png')} resizeMode="cover" style={styles.container}>
+                <StatusBar style={styles.center} />
+                <View style={styles.statusContainer}>
+                    <Progress step={hunger} steps={100} height={30} text="Hunger" color="#F58507" iconName="" />
+                    <Progress step={hunger} steps={100} height={30} text="Happiness" color="#07F51F" iconName="happy" />
+                </View>
+                <View style={styles.center}>
+                    <Image style={{ width: 300, height: 350 }} source={{ uri: catImg }} />
+                </View>
+            </ImageBackground>
         </View>
     );
 }
