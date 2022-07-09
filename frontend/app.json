@@ -18,7 +18,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jdcr-devs-2022.frontend"
     },
     "android": {
       "adaptiveIcon": {
