@@ -5,11 +5,11 @@ import { useEffect, useState } from 'react';
 const Shop = ({id}) => {
     const[xp, setXp] = useState();
 
-    // useEffect(() => {
-    //     axios.get("/api/v0/user/"+id+"/xp").then((response) => {
-    //         setXp(response.data);
-    //       });
-    // },[])
+    useEffect(() => {
+        axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/xp").then((response) => {
+            setXp(response.data.xp);
+          });
+    },[])
     
     return (
         <View style={styles.shopCenter}>

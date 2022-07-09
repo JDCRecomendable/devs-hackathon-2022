@@ -16,8 +16,8 @@ export default function App() {
       {/* <StatusBar style={styles.center} /> */}
       {/* <PetPage/> */}
       {/* <LoginPage /> */}
-      {/* <Shop /> */}
-      <Goal></Goal>
+      <Shop />
+      {/* <Goal></Goal> */}
       
     </View>
   );
