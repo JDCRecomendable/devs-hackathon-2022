@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, View, Form } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Form, Button } from 'react-native';
 import React, { Component, useState } from 'react';
 
 export default class SleepTime extends Component {
@@ -7,25 +7,34 @@ export default class SleepTime extends Component {
         super( props);
         this.state = {
             startTime: '',
+            endTime: '',
+            grace: ''
         }
 
-        this.handleStartTime = this.handleStartTime.bind(this);
-        this.handleEndTime = this.handleEndTime.bind(this);
+        this.setStartTime = this.setStartTime.bind(this);
+        this.setEndTime = this.setEndTime.bind(this);
+        this.setGrace = this.setGrace.bind(this);
 
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    handleStartTime (event) {
+    setStartTime (event) {
         this.setState({
             startTime: event.nativeEvent.text
         })
     } 
 
-    handleEndTime (event) {
+    setEndTime (event) {
       this.setState({
           endTime: event.nativeEvent.text
       })
-  } 
+    }
+
+    setGrace (event) {
+      this.setState({
+          grace: event.nativeEvent.text
+      })
+    } 
 
     handleSubmit = (event) => {
         this.setState({
@@ -42,7 +51,7 @@ export default class SleepTime extends Component {
             <Text>Target Sleep Time</Text>
             <TextInput
                 style={styles.input}
-                onChange={this.handleStartTime}
+                onChange={this.setStartTime}
                 value={this.state.startTime}
                 placeholder="Start Time"
             />
@@ -50,12 +59,23 @@ export default class SleepTime extends Component {
             <Text>Target Wake Time</Text>
             <TextInput
                 style={styles.input}
-                onChange={this.handleEndTime}
+                onChange={this.setEndTime}
                 value={this.state.endTime}
                 placeholder="End Time"
             />
 
-          
+          <Text>Grace Time</Text>
+            <TextInput
+                style={styles.input}
+                onChange={this.setGrace}
+                value={this.state.grace}
+                placeholder="Grace time"
+            />
+
+            <Button
+              title="Submit"
+              
+            />
           
           
         </View>
