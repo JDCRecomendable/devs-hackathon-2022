@@ -12,7 +12,6 @@ import axios from "axios";
 import PetName from './components/PetName';
 import AwesomeAlert from 'react-native-awesome-alerts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import AppButton from './components/AppButton';
 
 
 const HAPPY_CAT = Image.resolveAssetSource(HappyCat).uri;
