@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import { ImageBackground } from 'react-native-web';
 
 const Shop = ({ navigation }) => {
@@ -39,17 +39,13 @@ const Shop = ({ navigation }) => {
                     </TouchableOpacity>
                 </ImageBackground>
                 <Text style={{ fontSize: 35, fontWeight: 600 }}>Your XP: {xp}</Text>
-                <TouchableOpacity
+                <TouchableHighlight
+                    onPress={() => navigation.navigate("PetPage")}
                     style={{ marginTop: 40, backgroundColor: '#F58507', paddingLeft: "40px", paddingRight: 40, paddingTop: 20, paddingBottom: 20, borderRadius: 30 }}
                     underlayColor='#F58507'>
                     <Text style={{ color: "white", fontSize: 25 }}>Back</Text>
-                </TouchableOpacity>
-
-
+                </TouchableHighlight>
             </View>
-
-
-
         </View>
 
     );

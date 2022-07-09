@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Image, StyleSheet, Text, View, ImageBackground } from 'react-native';
+import { Animated, Image, StyleSheet, Text, View, ImageBackground, Touchable, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import HappyCat from './assets/happy_cat_no_bg.gif';
@@ -203,7 +203,9 @@ const PetPage = ({ navigation }) => {
                     <Image style={{ width: 300, height: 350 }} source={{ uri: catImg }} />
                     <PetName petName={name} />
                 </View>
-                <Image style={{ width: 129, height: 74, position: "absolute", left: 20, bottom: 50 }} source={{ uri: SHOP_ICON }} />
+                <TouchableOpacity onPress={() => navigation.navigate("Shop")}>
+                    <Image style={{ width: 129, height: 74, position: "absolute", left: 20, bottom: 50 }} source={{ uri: SHOP_ICON }} />
+                </TouchableOpacity>
                 <View style={styles.xpHolder}>
                     <Text style={{ textAlign: "center", color: "white", fontWeight: "bold", fontSize: 24 }}>XP: {xp}</Text>
                 </View>
