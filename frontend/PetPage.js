@@ -109,7 +109,7 @@ const PetPage = ({ navigation }) => {
             const happinessRes = await axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/happiness")
             const happiness = happinessRes.data.happiness;
             console.log("Happiness: " + happiness)
-            setHappiness(happiness)
+            setHappiness(happiness  )
         } catch (error) {
             console.log(error)
         }
