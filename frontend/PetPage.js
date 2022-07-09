@@ -7,15 +7,19 @@ import HappyCat from './assets/happy_cat_no_bg.gif';
 import SadCat from './assets/sad_cat_no_bg.gif';
 import NeutralCat from './assets/neutral_cat_no_bg.gif';
 import leaveImage from './assets/leaveImage.png';
+import shopIcon from './assets/shop_icon.png';
 import axios from "axios";
 import PetName from './components/PetName';
 import AwesomeAlert from 'react-native-awesome-alerts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const HAPPY_CAT = Image.resolveAssetSource(HappyCat).uri;
 const SAD_CAT = Image.resolveAssetSource(SadCat).uri;
 const NEUTRAL_CAT = Image.resolveAssetSource(NeutralCat).uri;
 const LEAVE_IMAGE = Image.resolveAssetSource(leaveImage).uri;
+const SHOP_ICON = Image.resolveAssetSource(shopIcon).uri;
+
 
 const Progress = ({ step, steps, height, text, color, iconName }) => {
     const [width, setWidth] = useState(0);
@@ -98,6 +102,15 @@ const PetPage = ({ navigation }) => {
     const [happiness, setHappiness] = useState(100);
     const [catImg, setCatImg] = useState(CatState.happy);
     const [catLeaveAlert, setCatLeaveAlert] = useState(false)
+    const [name, setName] = useState("")
+
+    useEffect(() => {
+        const getName = async () => {
+            const petName = await AsyncStorage.getItem("petName")
+            setName(petName)
+        }
+        getName();
+    }, [])
 
     const resetGame = () => {
         setCatLeaveAlert(false);
@@ -109,7 +122,7 @@ const PetPage = ({ navigation }) => {
             const happinessRes = await axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/happiness")
             const happiness = happinessRes.data.happiness;
             console.log("Happiness: " + happiness)
-            setHappiness(happiness  )
+            setHappiness(happiness)
         } catch (error) {
             console.log(error)
         }
@@ -168,8 +181,9 @@ const PetPage = ({ navigation }) => {
                 </View>
                 <View style={styles.center}>
                     <Image style={{ width: 300, height: 350 }} source={{ uri: catImg }} />
-                    <PetName />
+                    <PetName petName={name} />
                 </View>
+                <Image style={{ width: 129, height: 74, position: "absolute", left: 20, bottom: 50 }} source={{ uri: SHOP_ICON }} />
             </ImageBackground>
 
             <AwesomeAlert
