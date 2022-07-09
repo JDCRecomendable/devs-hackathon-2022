@@ -7,7 +7,7 @@ import HappyCat from './assets/happy_cat_no_bg.gif';
 import SadCat from './assets/sad_cat_no_bg.gif';
 import NeutralCat from './assets/neutral_cat_no_bg.gif';
 import axios from "axios";
-
+import PetName from './components/PetName';
 
 const HAPPY_CAT = Image.resolveAssetSource(HappyCat).uri;
 const SAD_CAT = Image.resolveAssetSource(SadCat).uri;
@@ -59,6 +59,9 @@ const Progress = ({ step, steps, height, text, color, iconName }) => {
                     backgroundColor: 'white',
                     borderRadius: height,
                     overflow: 'hidden',
+                    borderColor: 'black',
+                    borderStyle: 'solid',
+                    borderWidth: 3
                 }}>
                 <Animated.View style={{
                     height,
@@ -87,8 +90,7 @@ const CatState = {
 
 
 
-const PetPage = () => {
-    const [index, setIndex] = useState(0)
+const PetPage = ({ navigation }) => {
     const [hunger, setHunger] = useState(100);
     const [happiness, setHappiness] = useState(100);
 
@@ -99,7 +101,7 @@ const PetPage = () => {
             const happinessRes = await axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/happiness")
             const happiness = happinessRes.data.happiness;
             console.log("Happiness: " + happiness)
-            setHappiness(100)
+            setHappiness(happiness)
         } catch (error) {
             console.log(error)
         }
@@ -125,7 +127,7 @@ const PetPage = () => {
         return () => {
             clearInterval(interval);
         }
-    }, [index])
+    }, [])
 
     useEffect(() => {
         if (happiness < 33) {
@@ -139,22 +141,23 @@ const PetPage = () => {
 
     return (
         <View style={styles.container}>
-            <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 50 }}>
+            {/* <View style={{ justifyContent: "center", alignItems: "center", paddingTop: 50 }}>
                 <Text>
                     {"Hunger " + hunger}
                 </Text>
                 <Text>
                     {"Happiness " + happiness}
                 </Text>
-            </View>
+            </View> */}
             <ImageBackground source={require('./assets/BG.png')} resizeMode="cover" style={styles.container}>
                 <StatusBar style={styles.center} />
                 <View style={styles.statusContainer}>
                     <Progress step={hunger} steps={100} height={30} text="Hunger" color="#F58507" iconName="" />
-                    <Progress step={hunger} steps={100} height={30} text="Happiness" color="#07F51F" iconName="happy" />
+                    <Progress step={happiness} steps={100} height={30} text="Happiness" color="#07F51F" iconName="happy" />
                 </View>
                 <View style={styles.center}>
                     <Image style={{ width: 300, height: 350 }} source={{ uri: catImg }} />
+                    <PetName />
                 </View>
             </ImageBackground>
         </View>
@@ -181,15 +184,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: "center",
         alignItems: "center"
-    },
-    text: {
-        color: 'white',
-        fontSize: 42,
-        lineHeight: 84,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        backgroundColor: '#000000c0',
-    },
+    }
 });
 
 export default PetPage;

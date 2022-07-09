@@ -2,17 +2,37 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Image, ImageBackground, Animated } from 'react-native';
 import LoginPage from "./LoginPage";
-import PetPage  from './PetPage';
+import PetPage from './PetPage';
+import GetStarted from './GetStarted';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
 
 
   return (
-    <View style={styles.container}>
-      <StatusBar style={styles.center} />
-      <PetPage/>
-      {/* <LoginPage /> */}
-    </View>
+    <NavigationContainer>
+      <View style={styles.container}>
+        <StatusBar style={styles.center} />
+        <Stack.Navigator screenOptions={{
+          headerShown: false
+        }}>
+          {/* <PetPage/> */}
+          <Stack.Screen
+            name="GetStarted"
+            component={GetStarted}
+          />
+          <Stack.Screen
+            name="PetPage"
+            component={PetPage}
+          />
+          {/* <GetStarted /> */}
+          {/* <LoginPage /> */}
+        </Stack.Navigator>
+      </View>
+    </NavigationContainer >
   );
 }
 
