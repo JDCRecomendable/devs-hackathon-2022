@@ -5,6 +5,7 @@ import HappyCat from './assets/happy_cat_no_bg.gif';
 import AppButton from "./components/AppButton";
 import PetName from './components/PetName';
 import AwesomeAlert from 'react-native-awesome-alerts';
+import axios from "axios"
 
 
 const HAPPY_CAT = Image.resolveAssetSource(HappyCat).uri;
@@ -34,6 +35,25 @@ const GetStarted = ({ navigation }) => {
     //     createName(names[randIndex])
     // }, [])
 
+    useEffect(() => {
+        fetch("https://ripscamera0c.pythonanywhere.com/api/v0/reset-user",
+            {
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                method: "POST",
+                body: JSON.stringify({ ID: "a" })
+            })
+            .then(response => {
+                response.json()
+            }
+            )
+            .then(data => {
+                console.log('Success:', data);
+            })
+    }, [])
+
     return (
         <View
             style={{
@@ -46,7 +66,7 @@ const GetStarted = ({ navigation }) => {
             <Image style={{ width: 300, height: 350 }} source={{ uri: HAPPY_CAT }} />
             <PetName petName={name} />
             <View style={{ position: "absolute", bottom: "20%" }}>
-                <AppButton title={`adopt ${name}`} onPress={() => navigation.navigate('PetPage')} />
+                <AppButton title={`adopt ${name}`} onPress={() => navigation.navigate('Goal')} />
                 {/* <Text style={styles.subHeader}>(-500 Sleep Coins)</Text> */}
             </View>
             <AwesomeAlert

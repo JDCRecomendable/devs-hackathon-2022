@@ -1,10 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, View, Image, ImageBackground, Animated } from 'react-native';
+import Goal from './components/Goal';
 import LoginPage from "./LoginPage";
 import LandingPage from './LandingPage';
 import PetPage from './PetPage';
 import GetStarted from './GetStarted';
+import Shop from './components/Shop';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -31,6 +33,14 @@ export default function App() {
           <Stack.Screen
             name="PetPage"
             component={PetPage}
+          />
+          <Stack.Screen
+            name="Shop"
+            component={Shop}
+          />
+          <Stack.Screen
+            name="Goal"
+            component={Goal}
           />
         </Stack.Navigator>
       </View>
