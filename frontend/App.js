@@ -38,6 +38,10 @@ export default function App() {
             name="Shop"
             component={Shop}
           />
+          <Stack.Screen
+            name="Goal"
+            component={Goal}
+          />
         </Stack.Navigator>
       </View>
     </NavigationContainer >

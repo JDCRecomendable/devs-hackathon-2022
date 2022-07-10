@@ -1,6 +1,7 @@
 import { ImageBackground, Text, View, StyleSheet, Image, Button, TouchableHighlight, TouchableOpacity } from 'react-native';
 import axios from "axios";
 import { useEffect, useState } from 'react';
+import AwesomeAlert from "react-native-awesome-alerts"
 
 const Shop = ({ id, navigation }) => {
     const [xp, setXp] = useState();
@@ -9,6 +10,7 @@ const Shop = ({ id, navigation }) => {
     useEffect(() => {
         axios.get("https://ripscamera0c.pythonanywhere.com/api/v0/user/a/xp").then((response) => {
             setXp(response.data.xp);
+            console.log(response.data.xp)
         });
     }, [boughtFood])
 
@@ -23,8 +25,13 @@ const Shop = ({ id, navigation }) => {
                 method: "POST",
                 body: JSON.stringify({ value: value })
             })
-            .then(() => {
-                setBoughtFood(true);
+            .then(response => {
+                response.json()
+                setBoughtFood(!boughtFood)
+            }
+            )
+            .then(data => {
+                // console.log('Success:', data);
             })
     }
 
@@ -61,6 +68,20 @@ const Shop = ({ id, navigation }) => {
                     underlayColor='#F58507'>
                     <Text style={{ color: "white", fontSize: 25 }}>Back</Text>
                 </TouchableOpacity>
+
+                <AwesomeAlert
+                show={boughtFood}
+                showProgress={false}
+                title="Food successfully bought"
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showConfirmButton={true}
+                confirmText="Contiue"
+                confirmButtonColor="#DD6B55"
+                onConfirmPressed={() => {
+                    setBoughtFood(false);
+                }}
+            />
 
 
             </View>
