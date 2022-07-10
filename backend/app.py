@@ -1,10 +1,13 @@
 import json
 import sqlite3
+import time
 from datetime import datetime
 
 from flask import Flask, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 
 def craft_response(json_body, status_code):
@@ -98,6 +101,7 @@ def get_sleep(user_id='a', is_actual=False, want_date_time_recorded=False):
     if is_actual:
         sleep_tuple_list = cur.execute('SELECT * FROM sleepdata WHERE userid="{}"'.format(user_id)).fetchall()
         sleep_tuple_list.sort(key=lambda tup: tup[3])
+        print(cur.execute('SELECT * FROM sleepdata').fetchall())
         print(sleep_tuple_list)
         sleep_tuple = sleep_tuple_list[-1]
     else:
@@ -109,15 +113,20 @@ def get_sleep(user_id='a', is_actual=False, want_date_time_recorded=False):
 
 
 def determine_sleep_points(planned_sleep_int, actual_sleep_int, grace_period, is_start):
-    if is_start:
-        if planned_sleep_int < 1200:
-            planned_sleep_int += 2400
-        if actual_sleep_int < 1200:
-            actual_sleep_int += 2400
-    sleep_diff = abs(actual_sleep_int - planned_sleep_int)
-    if sleep_diff <= (grace_period // 2):
+    planned_sleep = time.strptime(str(planned_sleep_int), '%H%M')
+    actual_sleep = time.strptime(str(actual_sleep_int), '%H%M')
+
+    planned_sleep_time_string = time.strftime('%H:%M:00', planned_sleep)
+    actual_sleep_time_string = time.strftime('%H:%M:00', actual_sleep)
+
+    planned_sleep = datetime.strptime("1970-01-01 " + planned_sleep_time_string, '%Y-%m-%d %H:%M:%S')
+    actual_sleep = datetime.strptime("1970-01-01 " + actual_sleep_time_string, '%Y-%m-%d %H:%M:%S')
+    sleep_diff = (planned_sleep - actual_sleep).total_seconds() // 60
+    print("SLEEP_DIFF", (planned_sleep - actual_sleep).total_seconds() // 60)
+
+    if int(sleep_diff) <= (grace_period // 2):
         return 2
-    if sleep_diff <= grace_period:
+    if int(sleep_diff) <= grace_period:
         return 1
     return 0
 
@@ -158,14 +167,14 @@ def log_sleep(user_id='a'):
         if expected_value not in json_dict:
             return craft_response({'status': 'Error', 'error': 'Missing parameter: `{}`.'.format(expected_value)}, 400)
 
-    user_sleep_datetime = datetime.strptime(json_dict['dateTimeRecorded'], '%Y-%m-%d %H:%M:%S')
+    recording_datetime = datetime.strptime(json_dict['dateTimeRecorded'], '%Y-%m-%d %H:%M:%S')
 
     sleep_tuple_list = cur.execute('SELECT * FROM sleepdata WHERE userid="{}"'.format(user_id)).fetchall()
     sleep_tuple_list.sort(key=lambda tup: tup[3], reverse=True)
     for sleep_tuple in sleep_tuple_list:
         sleep_datetime_string = sleep_tuple[-1]
         sleep_datetime = datetime.strptime(sleep_datetime_string, '%Y-%m-%d %H:%M:%S')
-        if user_sleep_datetime.date() == sleep_datetime.date():
+        if recording_datetime.date() == sleep_datetime.date():
             return craft_response({
                 'status': 'Error',
                 'error': 'Sleep already recorded for target day.',
@@ -189,6 +198,95 @@ def log_sleep(user_id='a'):
         ))
     con.commit()
     return craft_response({'status': "Done"}, 200)
+
+
+@app.route('/api/v0/user/<user_id>/target/', methods=['GET'])
+@app.route('/api/v0/user/<user_id>/target', methods=['GET'])
+def target(user_id='a'):
+    con = sqlite3.connect('store.db')
+    cur = con.cursor()
+    if user_id_is_invalid(cur, user_id):
+        return craft_response({'status': 'Error', 'error': 'User ID does not exist'}, 400)
+
+    grace_period = cur.execute('SELECT * FROM userpreferences WHERE userid="{}"'.format(user_id)).fetchone()[3]
+    planned_sleep = get_sleep(user_id, False)
+    actual_sleep = get_sleep(user_id, True)
+    sleep_start_points = determine_sleep_points(planned_sleep[0], actual_sleep[0], grace_period, True)
+    sleep_end_points = determine_sleep_points(planned_sleep[1], actual_sleep[1], grace_period, False)
+
+    points = sleep_start_points + sleep_end_points
+    return craft_response({
+        'status': 'Done',
+        'points': points
+    }, 200)
+
+
+@app.route('/api/v0/user/<user_id>/auto-log-sleep/', methods=['POST'])
+@app.route('/api/v0/user/<user_id>/auto-log-sleep', methods=['POST'])
+def auto_log_sleep(user_id='a'):
+    con = sqlite3.connect('store.db')
+    cur = con.cursor()
+    if user_id_is_invalid(cur, user_id):
+        return craft_response({'status': 'Error', 'error': 'User ID does not exist'}, 400)
+
+    json_dict = request.get_json()
+    expected_values = ['sleepStart', 'sleepEnd', 'dateTimeRecorded']
+    for expected_value in expected_values:
+        if expected_value not in json_dict:
+            return craft_response({'status': 'Error', 'error': 'Missing parameter: `{}`.'.format(expected_value)}, 400)
+
+    recording_datetime = datetime.strptime(json_dict['dateTimeRecorded'], '%d/%m/%Y %H:%M:%S')
+
+    sleep_tuple_list = cur.execute('SELECT * FROM sleepdata WHERE userid="{}"'.format(user_id)).fetchall()
+    sleep_tuple_list.sort(key=lambda tup: tup[3], reverse=True)
+    for sleep_tuple in sleep_tuple_list:
+        sleep_datetime_string = sleep_tuple[-1]
+        sleep_datetime = datetime.strptime(sleep_datetime_string, '%Y-%m-%d %H:%M:%S')
+        if recording_datetime.date() == sleep_datetime.date():
+            return craft_response({
+                'status': 'Error',
+                'error': 'Sleep already recorded for target day.',
+                'helpMessage': 'Use the /remove-sleep endpoint with target date to clear sleep record for that day.',
+            }, 400)
+
+    sleep_start_datetime_object = datetime.strptime(json_dict['sleepStart'], '%d/%m/%Y %H:%M:%S')
+    sleep_end_datetime_object = datetime.strptime(json_dict['sleepEnd'], '%d/%m/%Y %H:%M:%S')
+    sleep_start = int(sleep_start_datetime_object.strftime('%H%M'))
+    sleep_end = int(sleep_end_datetime_object.strftime('%H%M'))
+
+    if sleep_start < 1200:
+        sleep_start += 2400
+
+    cur.execute(
+        'INSERT INTO sleepdata VALUES (\'{}\', \'{}\', \'{}\', \'{}\');'.format(
+            user_id,
+            sleep_start,
+            sleep_end,
+            recording_datetime.strftime('%Y-%m-%d %H:%M:%S')
+        ))
+    con.commit()
+
+    grace_period = cur.execute('SELECT * FROM userpreferences WHERE userid="{}"'.format(user_id)).fetchone()[3]
+    planned_sleep = get_sleep(user_id, False)
+    actual_sleep = get_sleep(user_id, True)
+    sleep_start_points = determine_sleep_points(planned_sleep[0], actual_sleep[0], grace_period, True)
+    sleep_end_points = determine_sleep_points(planned_sleep[1], actual_sleep[1], grace_period, False)
+
+    points = sleep_start_points + sleep_end_points
+    current_xp = cur.execute('SELECT {} FROM userdata WHERE userid=\'{}\''.format('xp', user_id)).fetchone()
+
+    new_xp = current_xp[0]
+    new_xp += 500 * points
+    new_xp = max(0, new_xp)
+    cur.execute('UPDATE userdata SET {}={} WHERE userid="{}"'.format('xp', new_xp, user_id))
+    con.commit()
+
+    return craft_response({
+        'status': 'Done',
+        'points': points,
+        'xpAdded': 500 * points,
+        'totalXp': new_xp
+    }, 200)
 
 
 @app.route('/api/v0/user/<user_id>/remove-sleep/', methods=['POST'])
@@ -251,14 +349,14 @@ def get_food(user_id='a'):
     new_xp = xp_at_hand - food_cost
 
     new_hunger = hunger_value
-    if food_cost >= 100:
-        new_hunger += 2
-    elif food_cost >= 500:
-        new_hunger += 15
+    if food_cost >= 2000:
+        new_hunger += 90
     elif food_cost >= 1000:
         new_hunger += 40
-    elif food_cost >= 1000:
-        new_hunger += 90
+    elif food_cost >= 500:
+        new_hunger += 15
+    elif food_cost >= 100:
+        new_hunger += 2
     else:
         new_hunger += 1
 
@@ -295,8 +393,8 @@ def register_user():
     return craft_response({'status': "Done"}, 200)
 
 
-@app.route('/api/v0/user/<user_id>/set-user-preferences/', methods=['POST'])
-@app.route('/api/v0/user/<user_id>/set-user-preferences', methods=['POST'])
+@app.route('/api/v0/user/<user_id>/set-user-preferences-iso8601/', methods=['POST'])
+@app.route('/api/v0/user/<user_id>/set-user-preferences-iso8601', methods=['POST'])
 def set_user_preferences(user_id='a'):
     con = sqlite3.connect('store.db')
     cur = con.cursor()
@@ -330,6 +428,76 @@ def set_user_preferences(user_id='a'):
         ))
     con.commit()
     return craft_response({'status': "Done"}, 200)
+
+
+@app.route('/api/v0/user/<user_id>/set-user-preferences/', methods=['POST'])
+@app.route('/api/v0/user/<user_id>/set-user-preferences', methods=['POST'])
+def set_user_preferences_js(user_id='a'):
+    con = sqlite3.connect('store.db')
+    cur = con.cursor()
+    if user_id_is_invalid(cur, user_id):
+        return craft_response({'status': 'Error', 'error': 'User ID does not exist'}, 400)
+
+    json_dict = request.get_json()
+    expected_values = ['wakeTime', 'sleepTime', 'gracePeriod']
+    for expected_value in expected_values:
+        if expected_value not in json_dict:
+            return craft_response({'status': 'Error', 'error': 'Missing parameter: `{}`.'.format(expected_value)}, 400)
+
+    wake_time_datetime = datetime.strptime(json_dict['wakeTime'], '%d/%m/%Y %H:%M:%S')
+    sleep_time_datetime = datetime.strptime(json_dict['sleepTime'], '%d/%m/%Y %H:%M:%S')
+
+    start_time_string = sleep_time_datetime.strftime('%H%M')
+    end_time_string = wake_time_datetime.strftime('%H%M')
+
+
+    cur.execute('DELETE FROM userpreferences WHERE userid="{}"'.format(user_id))
+    cur.execute(
+        'INSERT INTO userpreferences VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\');'.format(
+            user_id,
+            int(start_time_string),
+            int(end_time_string),
+            json_dict['gracePeriod'],
+            datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        ))
+    con.commit()
+    return craft_response({'status': "Done"}, 200)
+
+
+@app.route('/api/v0/user/<user_id>/view-sleep-prefs/', methods=['GET'])
+@app.route('/api/v0/user/<user_id>/view-sleep-prefs', methods=['GET'])
+def view_sleep_prefs(user_id='a'):
+    con = sqlite3.connect('store.db')
+    cur = con.cursor()
+    if user_id_is_invalid(cur, user_id):
+        return craft_response({'status': 'Error', 'error': 'User ID does not exist'}, 400)
+
+    sleep_prefs = cur.execute('SELECT * FROM userpreferences WHERE userid="{}"'.format(user_id)).fetchone()
+
+    values = []
+    for sleep_pref in sleep_prefs:
+        values.append(sleep_pref)
+
+    return craft_response({'status': "Done", "values": values}, 200)
+
+
+@app.route('/api/v0/user/<user_id>/view-sleep-data/', methods=['GET'])
+@app.route('/api/v0/user/<user_id>/view-sleep-data', methods=['GET'])
+def view_sleep_data(user_id='a'):
+    con = sqlite3.connect('store.db')
+    cur = con.cursor()
+    if user_id_is_invalid(cur, user_id):
+        return craft_response({'status': 'Error', 'error': 'User ID does not exist'}, 400)
+
+    sleep_prefs = cur.execute('SELECT * FROM userpreferences WHERE userid="{}"'.format(user_id)).fetchall()
+
+    values = []
+    for sleep_pref in sleep_prefs:
+        values.append(sleep_pref)
+
+    return craft_response({'status': "Done", "values": values}, 200)
+
+
 
 
 if __name__ == '__main__':
